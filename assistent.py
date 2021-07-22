@@ -1,17 +1,5 @@
 from console_visualisator import ConsoleVisualisator
-
-class Note:
-    def __init__(self, source='-', login='-', password='-'):
-        self.source = source
-        self.login  = login
-        self.password = password
-        self.unit = {'source' : source, 'login' : login, 'password' : password}
-
-    def get_unit(self):
-        return self.unit
-
-    def get_sequence(self):
-        return self.source, self.login, self.password
+from pass_keeper import Note
 
 class Assistent:
     def __init__(self):
