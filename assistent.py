@@ -11,6 +11,10 @@ class Assistent:
         self.notes = []
         self.pass_keeper = None
 
+    def __del__(self):
+        if len(self.notes) > 0:
+            self.pass_keeper.save(self.notes)
+
     def check_auth(self):
         if not self.is_auth:
             self.authorisation()
@@ -59,9 +63,9 @@ class Assistent:
     def data_mode(self):
         if self.save_mode is None:
             if self.set_save_mode():
-                print(f"Save mode has accepted: {self.save_mode}")
+                print(f"Save mode is accepted: {self.save_mode}")
             else:
-                print("Error: save mode has not accepted")
+                print("Error: save mode is not accepted")
                 return
 
         source   = str(input("\n>> data (source): "))
@@ -70,6 +74,10 @@ class Assistent:
 
         self.notes.append(Note(source, login, password))
         print(len(self.notes))
+
+        if len(self.notes) == 3:
+            self.pass_keeper.save(self.notes)
+            del self.notes[:]
 
     def print_all(self):
         con_vis = ConsoleVisualisator()

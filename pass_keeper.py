@@ -22,24 +22,33 @@ class PassKeeper():
 
         self.mode = mode
 
-    def save_in_db(self, note):
-        pass
+    def __save_in_db(self, notes):
+        print("Saved in db")
 
-    def save_in_file(self, note):
-        pass
+    def __save_in_file(self, notes):
+        print("Saved in file")
 
-    def save(self, note):
+    def save(self, notes):
         if self.mode == 'db':
-            self.save_in_db(note)
+            self.__save_in_db(notes)
 
         if self.mode == 'file':
-            self.save_in_file(note)
+            self.__save_in_file(notes)
 
     def db_test(self, in_pass):
         try:
-            conn = db.connect(database = 'postgres', user = 'postgres', password = in_pass, host = 'localhost')
+            conn = db.connect(user = 'postgres', password = in_pass, host = 'localhost', port = '5432')
 
             cursor = conn.cursor()
+
+            sql = '''CREATE database mydb;'''
+
+            #Creating a database
+            cursor.execute(sql)
+            print("Database created successfully........")
+
+            # list_database = cursor.fetchall()
+            # print(list_database)
 
             cursor.execute('select version()')
             data = cursor.fetchone()
