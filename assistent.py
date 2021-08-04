@@ -1,11 +1,30 @@
 from console_visualisator import ConsoleVisualisator
-from pass_keeper import Note
+from pass_keeper import Note, PassKeeper
 
 class Assistent:
     def __init__(self):
+        self.call_backs_init()
+
+        self.is_auth = False
+        self.save_mode = None
+
+        self.notes = []
+        self.pass_keeper = None
+
+    def check_auth(self):
+        if not self.is_auth:
+            self.authorisation()
+
+    def authorisation(self):
+        db_pass = str(input("\n>> type your db pass: "))
+        self.pass_keeper.db_test(db_pass)
+
+    def call_backs_init(self):
         self.modes = ("cmd",
                       "data",
                       "exit")
+
+        self.save_modes = ('db', 'file')
 
         self.commands = ("print all",
                          "change mode",
@@ -16,11 +35,37 @@ class Assistent:
 
         self.cmd_funcs = {"print all"   : self.print_all}
 
-        self.notes = []
+    def get_save_mode(self):
+        mode = None
+        for i in range(3):
+            m = str(input(">> set save mode (db, file): "))
+            if m in self.save_modes: 
+                mode = m
+                break
+            else: 
+                print("Error: wrong save mode\n")
+
+        return mode
+
+    def set_save_mode(self):
+        mode = self.get_save_mode()
+        if mode is not None: 
+            self.pass_keeper = PassKeeper(mode)
+            self.save_mode = mode
+            return True
+        else:
+            return False
 
     def data_mode(self):
-        source = str(input("\n>> data (source): "))
-        login = str(input(">> data (login): "))
+        if self.save_mode is None:
+            if self.set_save_mode():
+                print(f"Save mode has accepted: {self.save_mode}")
+            else:
+                print("Error: save mode has not accepted")
+                return
+
+        source   = str(input("\n>> data (source): "))
+        login    = str(input(">> data (login): "))
         password = str(input(">> data (password): "))
 
         self.notes.append(Note(source, login, password))

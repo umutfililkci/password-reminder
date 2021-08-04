@@ -35,16 +35,21 @@ class PassKeeper():
         if self.mode == 'file':
             self.save_in_file(note)
 
-    def db_test(self):
-        conn = db.connect(database = 'postgres', user = 'postgres', password = 'vthctltc50', host = 'localhost')
+    def db_test(self, in_pass):
+        try:
+            conn = db.connect(database = 'postgres', user = 'postgres', password = in_pass, host = 'localhost')
 
-        cursor = conn.cursor()
+            cursor = conn.cursor()
 
-        cursor.execute('select version()')
-        data = cursor.fetchone()
-        print(f'db version: {data}')
+            cursor.execute('select version()')
+            data = cursor.fetchone()
+            print(f'db version: {data}')
 
-        conn.close()
+            conn.close()
 
-        print('Connection closed')
+            print('Connection closed')
+        except db.OperationalError:
+            print("Error: Wrong password")
+
+        
 
