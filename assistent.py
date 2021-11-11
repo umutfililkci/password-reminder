@@ -1,15 +1,16 @@
 from console_visualisator import ConsoleVisualisator
 from pass_keeper import Note, PassKeeper
 
+import os
+
 class Assistent:
     def __init__(self):
         self.call_backs_init()
 
         self.is_auth = False
-        self.save_mode = None
 
         self.notes = []
-        self.pass_keeper = None
+        self.pass_keeper = PassKeeper(self.meta)
 
     def __del__(self):
         if len(self.notes) > 0:
@@ -28,21 +29,48 @@ class Assistent:
                       "data",
                       "exit")
 
-        self.save_modes = ('db', 'file')
+        self.save_modes   = ('db', 'file')
+
+        self.file_formats = ('pickle', 'csv', 'json')
 
         self.commands = ("print all",
+                         "print meta",
                          "change mode",
+                         "set file format",
+                         "change storage",
+                         "cls",
                          "exit")
+
+        self.meta = {
+            'save_mode' : None,
+            'file_format': None
+        }
 
         self.mode_funcs = {'cmd'  : self.cmd_mode,
                            'data' : self.data_mode}
 
-        self.cmd_funcs = {"print all"   : self.print_all}
+        self.cmd_funcs = {"print all"      : self.print_all,
+                          "print meta"     : self.print_meta,
+                          "set file format": self.set_file_format,
+                          "change storage" : self.change_storage,
+                          "cls"            : self.clear_console
+                          }
 
+    def change_storage(self):
+        self.set_save_mode()
+
+    def clear_console(self):
+        os.system('cls')
+
+    def print_meta(self):
+        meta = self.meta
+        print(  f"current save mode is << {meta['save_mode']} >>")
+        print(f"current file format is << {meta['file_format']} >>")
+        
     def get_save_mode(self):
         mode = None
         for i in range(3):
-            m = str(input(">> set save mode (db, file): "))
+            m = str(input(f">> set save mode {self.save_modes}: "))
             if m in self.save_modes: 
                 mode = m
                 break
@@ -51,22 +79,40 @@ class Assistent:
 
         return mode
 
+    def get_file_format(self):
+        ff = None
+        ffs = self.file_formats
+        for i in range(3):
+            f = str(input(f">> set file format {ffs}: "))
+            if f in ffs: 
+                ff = f
+                break
+            else: 
+                print("Error: wrong file format\n")
+
+        return ff
+
     def set_save_mode(self):
         mode = self.get_save_mode()
         if mode is not None: 
-            self.pass_keeper = PassKeeper(mode)
-            self.save_mode = mode
+            self.meta['save_mode'] = mode
+            self.pass_keeper.update(self.meta)
+            print(f"Save mode is accepted: {mode}")
             return True
         else:
+            print("Error: save mode is not accepted")
             return False
 
+    def set_file_format(self):
+        ff = self.get_file_format()
+        if ff is not None: 
+            self.meta['file_format'] = ff
+            self.pass_keeper.update(self.meta)
+        else:
+            print("Error: file format is not accepted")
+
     def data_mode(self):
-        if self.save_mode is None:
-            if self.set_save_mode():
-                print(f"Save mode is accepted: {self.save_mode}")
-            else:
-                print("Error: save mode is not accepted")
-                return
+        if not self.set_save_mode(): return
 
         source   = str(input("\n>> data (source): "))
         login    = str(input(">> data (login): "))
@@ -81,7 +127,10 @@ class Assistent:
 
     def print_all(self):
         con_vis = ConsoleVisualisator()
-        con_vis.show(self.notes)
+        notes = self.pass_keeper.read_all()
+        if notes is None: notes =  self.notes
+        else:             notes += self.notes
+        con_vis.show(notes)
 
     def cmd_request(self):
         cmd = str(input("\n>> cmd: "))
