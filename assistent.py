@@ -140,7 +140,7 @@ class Assistent:
         commands = self.commands
         cmd_funcs = self.cmd_funcs
 
-        cmd = str(input(">> cmd: "))
+        cmd = self.guess_cmd_abr(self.cmd_request()) 
         while cmd != 'exit' and cmd != 'change mode':
             if cmd in commands:
                 cmd_funcs[cmd]()
@@ -148,7 +148,8 @@ class Assistent:
                 print("Error: invalid comand")
                 print(f"Available cammands list: {commands}")
         
-            cmd = self.cmd_request()
+            cmd = self.guess_cmd_abr(self.cmd_request())
+            # cmd = self.cmd_request()
 
     def mode_request(self):
         mode = str(input("\nWhat mode do you wish, sir? : "))
@@ -158,7 +159,7 @@ class Assistent:
         modes = self.modes
         mode_funcs = self.mode_funcs
 
-        mode = self.mode_request()
+        mode = self.guess_cmd_abr(self.mode_request())
         while mode != 'exit':
             if mode in modes:
                 mode_funcs[mode]()
@@ -166,6 +167,19 @@ class Assistent:
                 print("Error: invalid mode...")
                 print(f"Available modes list: {modes}\n")
 
-            mode = self.mode_request()
+            mode = self.guess_cmd_abr(self.mode_request())
 
         print("Session is ended. Goodbye, sir!")
+
+    def guess_cmd_abr(self, guess):
+        for val in self.commands:
+            words = val.split(' ')
+            gl = len(guess)
+            if gl == len(words):
+                mc = 0 # match count
+                for i in range(gl):
+                    if guess[i] == words[i][0]: mc += 1
+                if mc == gl: return val
+
+        return guess
+                

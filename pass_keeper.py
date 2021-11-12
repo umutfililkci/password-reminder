@@ -48,6 +48,21 @@ class PassKeeper():
             'file': self.__read_from_file
         }
 
+        self.read_file_funcs = {
+            'csv':    self.__read_csv,
+            'json':   self.__read_json,
+            'pickle': self.__read_pickle
+        }
+
+        self.write_file_funcs = {
+            'csv':    self.__write_csv,
+            'json':   self.__write_json,
+            'pickle': self.__write_pickle    
+        }
+
+    def print_sorry(self, ff):
+        print(f'Is not created for {ff} yet! Please change file format')
+
     def __init__(self, meta):
         self.selfs_init(meta)
         if self.mode not in self.modes:
@@ -76,6 +91,12 @@ class PassKeeper():
             for note in notes:
                 writer.writerow(note.get_sequence())
 
+    def __write_json(self, notes):
+        self.print_sorry(self.ff)
+
+    def __write_pickle(self, notes):
+        self.print_sorry(self.ff)
+
     def __read_csv(self):
         notes = []
         with open(self.file_name, "r", newline="") as file:
@@ -86,10 +107,17 @@ class PassKeeper():
 
         return notes
 
+    def __read_json(self):
+        self.print_sorry(self.ff)
+
+    def __read_pickle(self):
+        self.print_sorry(self.ff)
+
     def __save_in_file(self, notes):
         ff = self.ff
+        self.write_file_funcs[self.ff](notes)
 
-        if ff == 'csv': self.__write_csv(notes)
+        # if ff == 'csv': self.__write_csv(notes)
             
         print("Saved in file")
 
@@ -102,11 +130,11 @@ class PassKeeper():
 
     def __read_from_file(self):
         ff = self.ff
-        notes = None
+        notes = self.read_file_funcs[ff]()
 
-        if ff == 'csv': notes = self.__read_csv()
+        # if ff == 'csv': notes = self.__read_csv()
             
-        print(f"All is read from {self.ff} file\n")
+        if notes is not None: print(f"All is read from {ff} file\n")
         return notes
     
     def read_all(self):
